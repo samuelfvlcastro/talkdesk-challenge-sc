@@ -1,6 +1,8 @@
 package phoneval
 
 import (
+	"log"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -8,8 +10,8 @@ import (
 )
 
 const (
-	zeroRune rune = 97
-	nineRune rune = 122
+	zeroRune rune = 48
+	nineRune rune = 57
 
 	speLength = 3  // size used for special numbers
 	minLength = 7  // min size a valid number can have
@@ -43,6 +45,25 @@ func (v Validator) IsValid(number Number) bool {
 	}
 
 	return true
+}
+
+// FindAreaCode matches the given Number with the longest existing area code prefix
+func (v Validator) FindAreaCode(number Number) (int, error) {
+	result, err := v.acTrie.Search(number.Clean)
+	if err != nil {
+		return 0, err
+	}
+
+	if result == "" {
+		return 0, nil
+	}
+
+	ac, err := strconv.Atoi(result)
+	if err != nil {
+		return 0, err
+	}
+
+	return ac, err
 }
 
 func (v Validator) hasValidPrefix(number string) bool {
@@ -83,7 +104,9 @@ func (v Validator) hasNumbersOnly(number string) bool {
 func initializeTree(areaCodes []string) *rtrie.Tree {
 	acTrie := rtrie.New(zeroRune, nineRune)
 	for _, code := range areaCodes {
-		acTrie.Insert(code)
+		if err := acTrie.Insert(code); err != nil {
+			log.Printf("invalid areacode, skipping [%s]", code)
+		}
 	}
 
 	return acTrie

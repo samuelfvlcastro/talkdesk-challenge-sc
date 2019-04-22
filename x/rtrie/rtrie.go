@@ -68,7 +68,7 @@ func (t *Tree) Insert(stg string) error {
 
 // Remove walks the tree according to the string to be removed
 func (t *Tree) Remove(stg string) error {
-	return errors.New("Not implemented")
+	return errors.New("not implemented")
 }
 
 // Search transverses the tree trying to find the given string
@@ -79,11 +79,10 @@ func (t *Tree) Search(stg string) (string, error) {
 		if err := t.validateRune(cp); err != nil {
 			return found, err
 		}
-		idx := int(cp) - int(t.minCp)
-		fmt.Printf("Rune: %q Index: %d Found: %s\n", cp, idx, found)
 
+		idx := int(cp) - int(t.minCp)
 		if root.Children[idx] == nil {
-			return found, nil
+			break
 		}
 
 		root = root.Children[idx]
